@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getToken } from "next-auth/jwt";
 
-export default auth((req: any) => {
+export async function middleware(req: any) {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const isPublic = req.nextUrl.pathname.startsWith("/login");
 
-  if (isPublic) {
-    return NextResponse.next();
-  }
-
-  if (!req.auth?.user) {
+  if (!token && !isPublic) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("callbackUrl", req.nextUrl.pathname);
@@ -16,7 +13,7 @@ export default auth((req: any) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|api/auth).*)"],
