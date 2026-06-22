@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ALMOXARIFE
+  FUNCIONARIO
+}
+
+enum TipoMovimento {
+  SAIDA
+  RETORNO
+  AJUSTE
+  ENTRADA
+}
+
+model User {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  cargo     Role     @default(FUNCIONARIO)
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  movimentosLiberados Movimento[] @relation("Liberador")
+}
+
+model Ferramenta {
+  id          String   @id @default(cuid())
+  codigo      String   @unique
+  descricao   String
+  posicao     String
+  quantidade  Int      @default(0)
+  quantidadeMinima Int @default(0)
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  movimentos  Movimento[]
+}
+
+model Movimento {
+  id              String        @id @default(cuid())
+  ferramentaId    String
+  ferramenta      Ferramenta    @relation(fields: [ferramentaId], references: [id])
+  tipo            TipoMovimento
+  quantidade      Int
+  quantidadeAntes Int
+  quantidadeDepois Int
+  nomeSolicitante String
+  liberadoPorId   String
+  liberadoPor     User          @relation("Liberador", fields: [liberadoPorId], references: [id])
+  observacao      String?
+  dataHora        DateTime      @default(now())
+}
