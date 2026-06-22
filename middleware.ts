@@ -10,8 +10,7 @@ export async function middleware(req: any) {
   const isLoggedIn = !!token;
 
   const isPublic =
-    req.nextUrl.pathname.startsWith("/login") ||
-    req.nextUrl.pathname.startsWith("/api/auth");
+    req.nextUrl.pathname.startsWith("/login");
 
   if (!isLoggedIn && !isPublic) {
     const url = req.nextUrl.clone();
@@ -24,7 +23,5 @@ export async function middleware(req: any) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|api/auth).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/auth).*)"],
 };
