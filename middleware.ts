@@ -1,18 +1,14 @@
 import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/lib/auth";
 
-export async function middleware(req: any) {
-  const token = await getToken({
-    req,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
+export default auth((req: any) => {
+  const isPublic = req.nextUrl.pathname.startsWith("/login");
 
-  const isLoggedIn = !!token;
+  if (isPublic) {
+    return NextResponse.next();
+  }
 
-  const isPublic =
-    req.nextUrl.pathname.startsWith("/login");
-
-  if (!isLoggedIn && !isPublic) {
+  if (!req.auth?.user) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("callbackUrl", req.nextUrl.pathname);
@@ -20,7 +16,7 @@ export async function middleware(req: any) {
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|api/auth).*)"],
