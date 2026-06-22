@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { FiTool } from "react-icons/fi";
 
-export default function LoginPage() {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams?: { callbackUrl?: string };
+}) {
   const router = useRouter();
-  const params = useSearchParams();
-  const callbackUrl = params.get("callbackUrl") || "/";
+
+  const callbackUrl = searchParams?.callbackUrl || "/";
+
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
@@ -18,16 +23,20 @@ export default function LoginPage() {
     e.preventDefault();
     setErro("");
     setLoading(true);
+
     const res = await signIn("credentials", {
       email,
       senha,
       redirect: false,
     });
+
     setLoading(false);
+
     if (res?.error) {
       setErro("E-mail ou senha inválidos.");
       return;
     }
+
     router.push(callbackUrl);
     router.refresh();
   }
@@ -42,8 +51,12 @@ export default function LoginPage() {
           <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-3">
             <FiTool size={22} />
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">Oficina Robi Wood</h1>
-          <p className="text-sm text-slate-500">Controle de Ferramentas Especiais</p>
+          <h1 className="text-2xl font-bold text-slate-800">
+            Oficina Robi Wood
+          </h1>
+          <p className="text-sm text-slate-500">
+            Controle de Ferramentas Especiais
+          </p>
         </div>
 
         {erro && (

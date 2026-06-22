@@ -65,7 +65,7 @@ git push -u origin main
 2. Em **Environment Variables**, adicione:
    - `DATABASE_URL` → connection string do Neon
    - `AUTH_SECRET` → gere com `npx auth secret` (ou qualquer string aleatória longa)
-   - `NEXTAUTH_URL` → URL pública do seu deploy (ex: `https://seu-projeto.vercel.app`)
+   - `NEXTAUTH_URL` → URL pública do seu deploy (ex: `https://robiwood-ferramentas.vercel.app`)
 3. Clique em **Deploy**.
 4. Após o primeiro deploy, rode as migrações no banco de produção (uma vez), localmente apontando para o Neon:
 
