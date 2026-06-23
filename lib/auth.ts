@@ -2,10 +2,10 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { authConfig } from "@/lib/auth.config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  session: { strategy: "jwt" },
-  pages: { signIn: "/login" },
+  ...authConfig,
   providers: [
     Credentials({
       name: "Credenciais",
@@ -19,7 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!email || !senha) return null;
 
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user || !user.ativo) return null;
+        if (!user || !user.ativo || !user.senha) return null;
 
         const senhaOk = await bcrypt.compare(senha, user.senha);
         if (!senhaOk) return null;
@@ -33,20 +33,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = (user as any).id;
-        token.cargo = (user as any).cargo;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).cargo = token.cargo;
-      }
-      return session;
-    },
-  },
 });
